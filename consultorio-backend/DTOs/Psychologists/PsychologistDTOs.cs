@@ -1,28 +1,19 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace consultorio_backend.Models
+namespace consultorio_backend.DTOs.Psychologists
 {
-    public abstract class Profile : Entity
+    public class PsychologistResponse
     {
-        public int? AppUserId { get; set; }
-        public AppUser? AppUser { get; set; }
-
-        [Required]
+        public int Id { get; set; }
         public string FirstName { get; set; } = string.Empty;
-
         public string? MiddleName { get; set; }
-
-        [Required]
         public string LastName { get; set; } = string.Empty;
-
         public string? SecondLastName { get; set; }
-
-
         public DateTime BirthDate { get; set; }
-
         public string? PhoneNumber { get; set; }
-
-        [Required]
         public string Email { get; set; } = string.Empty;
+        public string LicenceNumber { get; set; } = string.Empty;
+        public string Specialty { get; set; } = string.Empty;
+        public int? AppUserId { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
     }
 }

@@ -48,44 +48,8 @@ namespace consultorio_backend.Controllers.Auth
             {
                 Token = token,
                 Email = user.Email ?? string.Empty,
-                Roles = roles
-            });
-        }
-
-        /// <summary>
-        /// Register - Crear nuevo usuario (por defecto sin rol; el rol se asigna aparte)
-        /// </summary>
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var existingUser = await _userManager.FindByEmailAsync(request.Email);
-            if (existingUser != null)
-                return BadRequest(new { message = "El email ya está registrado" });
-
-            var newUser = new AppUser
-            {
-                Email = request.Email,
-                UserName = request.Email,
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                EmailConfirmed = true
-            };
-
-            var result = await _userManager.CreateAsync(newUser, request.Password);
-            if (!result.Succeeded)
-            {
-                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                return BadRequest(new { message = "Error al crear usuario", errors });
-            }
-
-            return Ok(new RegisterResponse
-            {
-                UserId = newUser.Id,
-                Email = newUser.Email ?? string.Empty,
-                Message = "Usuario registrado exitosamente"
+                Roles = roles,
+                Name = $"{user.FirstName} {user.LastName}"
             });
         }
     }
