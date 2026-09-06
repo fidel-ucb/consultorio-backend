@@ -17,8 +17,6 @@ namespace consultorio_backend.Models
 
         public string? SecondLastName { get; set; }
 
-        [Required]
-        public string DNI { get; set; } = string.Empty;
 
         public DateTime BirthDate { get; set; }
 
