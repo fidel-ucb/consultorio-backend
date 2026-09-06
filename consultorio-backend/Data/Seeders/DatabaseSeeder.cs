@@ -1,4 +1,5 @@
 using consultorio_backend.Models;
+using consultorio_backend.Models.Enums;
 using consultorio_backend.Models.Identity;
 using Microsoft.AspNetCore.Identity;
 
@@ -24,15 +25,17 @@ namespace consultorio_backend.Data.Seeders
         {
             await SeedRolesAsync();
 
-            // Verificar si ya hay usuarios
-            if (_context.Users.Any())
-                return;
+            if (!_context.Users.Any())
+            {
+                await SeedUsersAsync();
+                await SeedPsychologistsAsync();
+                await SeedPatientsAsync();
+            }
 
-            await SeedUsersAsync();
-            await SeedPsychologistsAsync();
-            await SeedPatientsAsync();
-
-            await _context.SaveChangesAsync();
+            if (!_context.Appointments.Any())
+            {
+                await SeedAppointmentsAsync();
+            }
         }
 
         private async Task SeedRolesAsync()
@@ -59,8 +62,8 @@ namespace consultorio_backend.Data.Seeders
 
             var garciaUser = new AppUser
             {
-                Email = "doctor.garcia@consultorio.com",
-                UserName = "doctor.garcia@consultorio.com",
+                Email = "psic.garcia@consultorio.com",
+                UserName = "psic.garcia@consultorio.com",
                 FirstName = "Carlos",
                 LastName = "García",
                 EmailConfirmed = true
@@ -87,7 +90,7 @@ namespace consultorio_backend.Data.Seeders
 
         private async Task SeedPsychologistsAsync()
         {
-            var garciUser = _context.Users.First(u => u.Email == "doctor.garcia@consultorio.com");
+            var garciUser = _context.Users.First(u => u.Email == "psic.garcia@consultorio.com");
 
             var psychologists = new List<Psychologist>
             {
@@ -96,13 +99,36 @@ namespace consultorio_backend.Data.Seeders
                     FirstName = "Carlos",
                     LastName = "García",
                     SecondLastName = "Rodríguez",
-                    DNI = "12345678",
                     BirthDate = new DateTime(1980, 5, 15),
                     PhoneNumber = "555-0001",
-                    Email = "doctor.garcia@consultorio.com",
+                    Email = "psic.garcia@consultorio.com",
                     LicenceNumber = "PSI-2024-001",
                     Specialty = "Psicología Clínica",
                     AppUserId = garciUser.Id,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new Psychologist
+                {
+                    FirstName = "María",
+                    LastName = "López",
+                    SecondLastName = "Gómez",
+                    BirthDate = new DateTime(1985, 3, 22),
+                    PhoneNumber = "555-0002",
+                    Email = "psic.lopez@consultorio.com",
+                    LicenceNumber = "PSI-2024-002",
+                    Specialty = "Psicología Infantil",
+                    CreatedAt = DateTime.UtcNow
+                },
+                new Psychologist
+                {
+                    FirstName = "Javier",
+                    LastName = "Martínez",
+                    SecondLastName = "Sánchez",
+                    BirthDate = new DateTime(1978, 11, 5),
+                    PhoneNumber = "555-0003",
+                    Email = "psic.martinez@consultorio.com",
+                    LicenceNumber = "PSI-2024-003",
+                    Specialty = "Psicología Educativa",
                     CreatedAt = DateTime.UtcNow
                 }
             };
@@ -122,7 +148,6 @@ namespace consultorio_backend.Data.Seeders
                     FirstName = "Juan",
                     LastName = "Pérez",
                     SecondLastName = "González",
-                    DNI = "11223344",
                     BirthDate = new DateTime(1990, 7, 10),
                     PhoneNumber = "555-5001",
                     Email = "juan.perez@example.com",
@@ -134,7 +159,6 @@ namespace consultorio_backend.Data.Seeders
                     FirstName = "Ana",
                     LastName = "Martínez",
                     SecondLastName = "Sánchez",
-                    DNI = "22334455",
                     BirthDate = new DateTime(1988, 2, 14),
                     PhoneNumber = "555-5002",
                     Email = "ana.martinez@example.com",
@@ -145,7 +169,6 @@ namespace consultorio_backend.Data.Seeders
                     FirstName = "Pedro",
                     LastName = "Fernández",
                     SecondLastName = "López",
-                    DNI = "33445566",
                     BirthDate = new DateTime(1992, 11, 25),
                     PhoneNumber = "555-5003",
                     Email = "pedro.fernandez@example.com",
@@ -156,7 +179,6 @@ namespace consultorio_backend.Data.Seeders
                     FirstName = "Laura",
                     LastName = "García",
                     SecondLastName = "Díaz",
-                    DNI = "44556677",
                     BirthDate = new DateTime(1995, 6, 8),
                     PhoneNumber = "555-5004",
                     Email = "laura.garcia@example.com",
@@ -167,7 +189,6 @@ namespace consultorio_backend.Data.Seeders
                     FirstName = "Diego",
                     LastName = "Rodríguez",
                     SecondLastName = "Vargas",
-                    DNI = "55667788",
                     BirthDate = new DateTime(1987, 9, 3),
                     PhoneNumber = "555-5005",
                     Email = "diego.rodriguez@example.com",
@@ -176,6 +197,135 @@ namespace consultorio_backend.Data.Seeders
             };
 
             await _context.Patients.AddRangeAsync(patients);
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task SeedAppointmentsAsync()
+        {
+            var garcia = _context.Psychologists.First(p => p.Email == "psic.garcia@consultorio.com");
+
+            var juan = _context.Patients.First(p => p.Email == "juan.perez@example.com");
+            var ana = _context.Patients.First(p => p.Email == "ana.martinez@example.com");
+            var pedro = _context.Patients.First(p => p.Email == "pedro.fernandez@example.com");
+            var laura = _context.Patients.First(p => p.Email == "laura.garcia@example.com");
+            var diego = _context.Patients.First(p => p.Email == "diego.rodriguez@example.com");
+
+            var now = DateTime.UtcNow;
+
+            var appointments = new List<Appointment>
+            {
+                // Historial de Juan Pérez: variado en status, type y tiempo (para nutrir su dashboard)
+                new Appointment
+                {
+                    PatientId = juan.Id,
+                    PsychologistId = garcia.Id,
+                    StartAt = now.AddDays(-30).Date.AddHours(10),
+                    EndAt = now.AddDays(-30).Date.AddHours(11),
+                    Status = AppointmentStatus.Completed,
+                    Type = AppointmentType.InPerson,
+                    Notes = "Primera sesión de evaluación."
+                },
+                new Appointment
+                {
+                    PatientId = juan.Id,
+                    PsychologistId = garcia.Id,
+                    StartAt = now.AddDays(-21).Date.AddHours(10),
+                    EndAt = now.AddDays(-21).Date.AddHours(11),
+                    Status = AppointmentStatus.Completed,
+                    Type = AppointmentType.Online,
+                    Notes = "Seguimiento de terapia cognitivo-conductual."
+                },
+                new Appointment
+                {
+                    PatientId = juan.Id,
+                    PsychologistId = garcia.Id,
+                    StartAt = now.AddDays(-14).Date.AddHours(16),
+                    EndAt = now.AddDays(-14).Date.AddHours(17),
+                    Status = AppointmentStatus.NoShow,
+                    Type = AppointmentType.InPerson,
+                    Notes = "El paciente no asistió."
+                },
+                new Appointment
+                {
+                    PatientId = juan.Id,
+                    PsychologistId = garcia.Id,
+                    StartAt = now.AddDays(-7).Date.AddHours(9),
+                    EndAt = now.AddDays(-7).Date.AddHours(10),
+                    Status = AppointmentStatus.Cancelled,
+                    Type = AppointmentType.Online,
+                    Notes = "Cancelada por el paciente con anticipación."
+                },
+                new Appointment
+                {
+                    PatientId = juan.Id,
+                    PsychologistId = garcia.Id,
+                    StartAt = now.AddDays(-2).Date.AddHours(15),
+                    EndAt = now.AddDays(-2).Date.AddHours(16),
+                    Status = AppointmentStatus.Completed,
+                    Type = AppointmentType.InPerson,
+                    Notes = "Buen progreso en las técnicas de manejo de ansiedad."
+                },
+                new Appointment
+                {
+                    PatientId = juan.Id,
+                    PsychologistId = garcia.Id,
+                    StartAt = now.AddDays(3).Date.AddHours(11),
+                    EndAt = now.AddDays(3).Date.AddHours(12),
+                    Status = AppointmentStatus.Confirmed,
+                    Type = AppointmentType.Online,
+                    Notes = "Sesión de seguimiento programada."
+                },
+                new Appointment
+                {
+                    PatientId = juan.Id,
+                    PsychologistId = garcia.Id,
+                    StartAt = now.AddDays(10).Date.AddHours(9),
+                    EndAt = now.AddDays(10).Date.AddHours(10),
+                    Status = AppointmentStatus.Scheduled,
+                    Type = AppointmentType.InPerson
+                },
+
+                // Citas de otros pacientes, para variedad general en el sistema
+                new Appointment
+                {
+                    PatientId = ana.Id,
+                    PsychologistId = garcia.Id,
+                    StartAt = now.AddDays(-10).Date.AddHours(12),
+                    EndAt = now.AddDays(-10).Date.AddHours(13),
+                    Status = AppointmentStatus.Completed,
+                    Type = AppointmentType.InPerson,
+                    Notes = "Consulta inicial."
+                },
+                new Appointment
+                {
+                    PatientId = pedro.Id,
+                    PsychologistId = garcia.Id,
+                    StartAt = now.AddDays(-5).Date.AddHours(14),
+                    EndAt = now.AddDays(-5).Date.AddHours(15),
+                    Status = AppointmentStatus.NoShow,
+                    Type = AppointmentType.Online
+                },
+                new Appointment
+                {
+                    PatientId = laura.Id,
+                    PsychologistId = garcia.Id,
+                    StartAt = now.AddDays(5).Date.AddHours(10),
+                    EndAt = now.AddDays(5).Date.AddHours(11),
+                    Status = AppointmentStatus.Scheduled,
+                    Type = AppointmentType.InPerson
+                },
+                new Appointment
+                {
+                    PatientId = diego.Id,
+                    PsychologistId = garcia.Id,
+                    StartAt = now.AddDays(15).Date.AddHours(17),
+                    EndAt = now.AddDays(15).Date.AddHours(18),
+                    Status = AppointmentStatus.Confirmed,
+                    Type = AppointmentType.Online
+                }
+            };
+
+            await _context.Appointments.AddRangeAsync(appointments);
             await _context.SaveChangesAsync();
         }
     }
